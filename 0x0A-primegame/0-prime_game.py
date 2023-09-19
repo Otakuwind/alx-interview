@@ -3,55 +3,55 @@
 
 
 def isWinner(x, nums):
-    """Function to get who has won in prime game"""
-    mariaWinsCount = 0
-    benWinsCount = 0
-
-    for num in nums:
-        roundsSet = list(range(1, num + 1))
-        primesSet = primes_in_range(1, num)
-
-        if not primesSet:
-            benWinsCount += 1
-            continue
-
-        isMariaTurns = True
-
-        while(True):
-            if not primesSet:
-                if isMariaTurns:
-                    benWinsCount += 1
-                else:
-                    mariaWinsCount += 1
-                break
-
-            smallestPrime = primesSet.pop(0)
-            roundsSet.remove(smallestPrime)
-
-            roundsSet = [x for x in roundsSet if x % smallestPrime != 0]
-
-            isMariaTurns = not isMariaTurns
-
-    if mariaWinsCount > benWinsCount:
-        return "Winner: Maria"
-
-    if mariaWinsCount < benWinsCount:
-        return "Winner: Ben"
-
-    return None
-
-
-def is_prime(n):
-    """Returns True if n is prime, else False."""
-    if n < 2:
-        return False
-    for i in range(2, int(n ** 0.5) + 1):
-        if n % i == 0:
+    def isPrime(n):
+        if n <= 1:
             return False
-    return True
+        if n <= 3:
+            return True
+        if n % 2 == 0 or n % 3 == 0:
+            return False
+        i = 5
+        while i * i <= n:
+            if n % i == 0 or n % (i + 2) == 0:
+                return False
+            i += 6
+        return True
 
+    def canWin(n):
+        dp = [False] * (n + 1)
+        dp[0] = False
+        dp[1] = False
 
-def primes_in_range(start, end):
-    """Returns a list of prime numbers between start and end (inclusive)."""
-    primes = [n for n in range(start, end+1) if is_prime(n)]
-    return primes
+        for i in range(2, n + 1):
+            if isPrime(i):
+                dp[i] = True
+                continue
+            for j in range(2, i // 2 + 1):
+                if i % j == 0 and not dp[i - j]:
+                    dp[i] = True
+                    break
+
+        return dp[n]
+
+    maria_wins = 0
+    ben_wins = 0
+
+    for n in nums:
+        if canWin(n):
+            maria_wins += 1
+        else:
+            ben_wins += 1
+
+    if maria_wins > ben_wins:
+        return "Maria"
+    elif ben_wins > maria_wins:
+        return "Ben"
+    else:
+        return None
+
+# Example usage:
+x = 3
+nums = [4, 5, 1]
+result = isWinner(x, nums)
+print(result)  # Output: "Ben"
+
